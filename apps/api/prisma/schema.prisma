@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  displayName  String
+  avatarUrl    String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  ownedRooms    Room[]            @relation("RoomOwner")
+  participants  RoomParticipant[]
+  votes         Vote[]
+  refreshTokens RefreshToken[]
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Room {
+  id        String   @id @default(cuid())
+  name      String
+  code      String   @unique
+  ownerId   String
+  owner     User     @relation("RoomOwner", fields: [ownerId], references: [id])
+  cardScale String   @default("fibonacci")
+  status    String   @default("active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  participants RoomParticipant[]
+  stories      Story[]
+}
+
+model RoomParticipant {
+  id       String   @id @default(cuid())
+  roomId   String
+  room     Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role     String   @default("voter")
+  joinedAt DateTime @default(now())
+
+  @@unique([roomId, userId])
+}
+
+model Story {
+  id            String   @id @default(cuid())
+  roomId        String
+  room          Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  title         String
+  description   String?
+  externalId    String?
+  externalUrl   String?
+  status        String   @default("pending")
+  finalEstimate String?
+  sortOrder     Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  votes  Vote[]
+  rounds VotingRound[]
+}
+
+model VotingRound {
+  id         String    @id @default(cuid())
+  storyId    String
+  story      Story     @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  roundNum   Int       @default(1)
+  startedAt  DateTime  @default(now())
+  revealedAt DateTime?
+
+  votes Vote[]
+
+  @@unique([storyId, roundNum])
+}
+
+model Vote {
+  id        String      @id @default(cuid())
+  roundId   String
+  round     VotingRound @relation(fields: [roundId], references: [id], onDelete: Cascade)
+  storyId   String
+  story     Story       @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  value     String
+  createdAt DateTime    @default(now())
+
+  @@unique([roundId, userId])
+}
