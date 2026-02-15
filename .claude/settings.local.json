@@ -3,7 +3,9 @@
     "allow": [
       "Bash(git init:*)",
       "Bash(pnpm create:*)",
-      "Bash(pnpm install:*)"
+      "Bash(pnpm install:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

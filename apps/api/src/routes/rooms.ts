@@ -28,7 +28,7 @@ roomRouter.get("/", async (req: AuthRequest, res, next) => {
 
 roomRouter.get("/join/:code", async (req: AuthRequest, res, next) => {
   try {
-    const room = await roomService.getRoomByCode(req.params.code);
+    const room = await roomService.getRoomByCode(req.params.code as string);
     res.json({ room });
   } catch (err) {
     next(err);
@@ -37,7 +37,7 @@ roomRouter.get("/join/:code", async (req: AuthRequest, res, next) => {
 
 roomRouter.get("/:id", async (req: AuthRequest, res, next) => {
   try {
-    const room = await roomService.getRoomById(req.params.id, req.userId!);
+    const room = await roomService.getRoomById(req.params.id as string, req.userId!);
     res.json({ room });
   } catch (err) {
     next(err);
@@ -46,7 +46,7 @@ roomRouter.get("/:id", async (req: AuthRequest, res, next) => {
 
 roomRouter.post("/:id/join", async (req: AuthRequest, res, next) => {
   try {
-    const participant = await roomService.joinRoom(req.params.id, req.userId!);
+    const participant = await roomService.joinRoom(req.params.id as string, req.userId!);
     res.json({ participant });
   } catch (err) {
     next(err);
@@ -55,7 +55,7 @@ roomRouter.post("/:id/join", async (req: AuthRequest, res, next) => {
 
 roomRouter.patch("/:id", validate(updateRoomSchema), async (req: AuthRequest, res, next) => {
   try {
-    const room = await roomService.updateRoom(req.params.id, req.userId!, req.body);
+    const room = await roomService.updateRoom(req.params.id as string, req.userId!, req.body);
     res.json({ room });
   } catch (err) {
     next(err);
@@ -64,7 +64,7 @@ roomRouter.patch("/:id", validate(updateRoomSchema), async (req: AuthRequest, re
 
 roomRouter.delete("/:id", async (req: AuthRequest, res, next) => {
   try {
-    await roomService.deleteRoom(req.params.id, req.userId!);
+    await roomService.deleteRoom(req.params.id as string, req.userId!);
     res.json({ success: true });
   } catch (err) {
     next(err);
