@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { createStorySchema, updateStorySchema } from "@planning-poker/shared";
+import { createStorySchema, updateStorySchema, SocketEvents } from "@planning-poker/shared";
 import { validate } from "../middleware/validate";
 import { authenticate, type AuthRequest } from "../middleware/auth";
 import * as storyService from "../services/storyService";
+import { getIO } from "../socket";
 
 export const storyRouter = Router();
 
@@ -13,11 +14,11 @@ storyRouter.post(
   validate(createStorySchema),
   async (req: AuthRequest, res, next) => {
     try {
-      const story = await storyService.createStory(
-        req.params.roomId as string,
-        req.userId!,
-        req.body
-      );
+      const roomId = req.params.roomId as string;
+      const story = await storyService.createStory(roomId, req.userId!, req.body);
+
+      getIO().to(roomId).emit(SocketEvents.STORY_ADDED, { story });
+
       res.status(201).json({ story });
     } catch (err) {
       next(err);
@@ -42,12 +43,16 @@ storyRouter.patch(
   validate(updateStorySchema),
   async (req: AuthRequest, res, next) => {
     try {
+      const roomId = req.params.roomId as string;
       const story = await storyService.updateStory(
-        req.params.roomId as string,
+        roomId,
         req.params.storyId as string,
         req.userId!,
         req.body
       );
+
+      getIO().to(roomId).emit(SocketEvents.STORY_UPDATED, { story });
+
       res.json({ story });
     } catch (err) {
       next(err);
@@ -59,11 +64,12 @@ storyRouter.delete(
   "/:roomId/stories/:storyId",
   async (req: AuthRequest, res, next) => {
     try {
-      await storyService.deleteStory(
-        req.params.roomId as string,
-        req.params.storyId as string,
-        req.userId!
-      );
+      const roomId = req.params.roomId as string;
+      const storyId = req.params.storyId as string;
+      await storyService.deleteStory(roomId, storyId, req.userId!);
+
+      getIO().to(roomId).emit(SocketEvents.STORY_DELETED, { storyId });
+
       res.json({ success: true });
     } catch (err) {
       next(err);
