@@ -24,7 +24,10 @@
       "Bash(git commit -m \"$\\(cat <<''EOF''\nfix: serialize Prisma Date fields before emitting story events\n\nPrisma returns Date objects for createdAt/updatedAt but the shared\nStory type expects ISO strings. This caused a type mismatch when\nbroadcasting story events via Socket.io.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(git push:*)",
       "Bash(pnpm add:*)",
-      "Bash(npx playwright install:*)"
+      "Bash(npx playwright install:*)",
+      "Bash(git commit:*)",
+      "Bash(git status:*)",
+      "Bash(git check-ignore:*)"
     ]
   }
 }
