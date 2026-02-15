@@ -15,7 +15,16 @@
       "Bash(docker compose:*)",
       "Bash(npx prisma migrate:*)",
       "Bash(lsof:*)",
-      "Bash(xargs kill -9:*)"
+      "Bash(xargs kill -9:*)",
+      "Bash(git log:*)",
+      "Bash(pnpm build:*)",
+      "Bash(git reset:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfix: emit socket events when stories are created, updated, or deleted\n\nStories were only persisted via REST but never broadcast through\nSocket.io, so other users in the room never saw new stories and\ncouldn''t vote on them. Added STORY_ADDED, STORY_UPDATED, and\nSTORY_DELETED emissions after each mutation.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nfix: serialize Prisma Date fields before emitting story events\n\nPrisma returns Date objects for createdAt/updatedAt but the shared\nStory type expects ISO strings. This caused a type mismatch when\nbroadcasting story events via Socket.io.\n\nCo-Authored-By: Claude Opus 4.6 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push:*)",
+      "Bash(pnpm add:*)",
+      "Bash(npx playwright install:*)"
     ]
   }
 }
