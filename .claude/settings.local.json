@@ -13,7 +13,9 @@
       "Bash(brew services:*)",
       "Bash(docker --version:*)",
       "Bash(docker compose:*)",
-      "Bash(npx prisma migrate:*)"
+      "Bash(npx prisma migrate:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill -9:*)"
     ]
   }
 }
