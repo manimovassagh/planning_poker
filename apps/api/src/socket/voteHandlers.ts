@@ -155,18 +155,12 @@ export function setupVoteHandlers(
 
   socket.on(SocketEvents.VOTE_REVEAL, async ({ storyId, roundId }) => {
     try {
-      const round = await prisma.votingRound.findUnique({
-        where: { id: roundId },
-        include: { story: true },
+      // Verify facilitator
+      const story = await prisma.story.findUnique({
+        where: { id: storyId },
+        include: { room: true },
       });
-      if (!round || round.story.room?.ownerId !== undefined) {
-        // Check facilitator
-        const story = await prisma.story.findUnique({
-          where: { id: storyId },
-          include: { room: true },
-        });
-        if (!story || story.room.ownerId !== socket.userId) return;
-      }
+      if (!story || story.room.ownerId !== socket.userId) return;
 
       await prisma.votingRound.update({
         where: { id: roundId },
@@ -187,27 +181,19 @@ export function setupVoteHandlers(
 
       const stats = calculateStats(votes);
 
-      const roomId =
-        round.story.roomId ||
-        (
-          await prisma.story.findUnique({ where: { id: storyId } })
-        )?.roomId;
-
-      if (roomId) {
-        io.to(roomId).emit(SocketEvents.VOTE_REVEALED, {
-          roundId,
-          votes: votes.map((v) => ({
-            id: v.id,
-            roundId: v.roundId,
-            storyId: v.storyId,
-            userId: v.userId,
-            value: v.value,
-            createdAt: v.createdAt.toISOString(),
-            user: v.user,
-          })),
-          stats,
-        });
-      }
+      io.to(story.roomId).emit(SocketEvents.VOTE_REVEALED, {
+        roundId,
+        votes: votes.map((v) => ({
+          id: v.id,
+          roundId: v.roundId,
+          storyId: v.storyId,
+          userId: v.userId,
+          value: v.value,
+          createdAt: v.createdAt.toISOString(),
+          user: v.user,
+        })),
+        stats,
+      });
     } catch (err) {
       console.error("Error revealing votes:", err);
     }

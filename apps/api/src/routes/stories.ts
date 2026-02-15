@@ -14,7 +14,7 @@ storyRouter.post(
   async (req: AuthRequest, res, next) => {
     try {
       const story = await storyService.createStory(
-        req.params.roomId,
+        req.params.roomId as string,
         req.userId!,
         req.body
       );
@@ -28,7 +28,7 @@ storyRouter.post(
 storyRouter.get("/:roomId/stories", async (req: AuthRequest, res, next) => {
   try {
     const stories = await storyService.listStories(
-      req.params.roomId,
+      req.params.roomId as string,
       req.userId!
     );
     res.json({ stories });
@@ -43,8 +43,8 @@ storyRouter.patch(
   async (req: AuthRequest, res, next) => {
     try {
       const story = await storyService.updateStory(
-        req.params.roomId,
-        req.params.storyId,
+        req.params.roomId as string,
+        req.params.storyId as string,
         req.userId!,
         req.body
       );
@@ -60,8 +60,8 @@ storyRouter.delete(
   async (req: AuthRequest, res, next) => {
     try {
       await storyService.deleteStory(
-        req.params.roomId,
-        req.params.storyId,
+        req.params.roomId as string,
+        req.params.storyId as string,
         req.userId!
       );
       res.json({ success: true });

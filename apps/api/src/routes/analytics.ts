@@ -9,7 +9,7 @@ analyticsRouter.use(authenticate);
 
 analyticsRouter.get("/rooms/:roomId", async (req: AuthRequest, res, next) => {
   try {
-    const { roomId } = req.params;
+    const roomId = req.params.roomId as string;
 
     const participant = await prisma.roomParticipant.findUnique({
       where: { roomId_userId: { roomId, userId: req.userId! } },
@@ -29,9 +29,9 @@ analyticsRouter.get("/rooms/:roomId", async (req: AuthRequest, res, next) => {
     });
     if (!room) throw new AppError(404, "Room not found");
 
-    const storiesWithFinal = room.stories.filter((s) => s.finalEstimate);
+    const storiesWithFinal = room.stories.filter((s: any) => s.finalEstimate);
     const totalRounds = room.stories.reduce(
-      (sum, s) => sum + s._count.rounds,
+      (sum: number, s: any) => sum + s._count.rounds,
       0
     );
 
@@ -56,7 +56,7 @@ analyticsRouter.get(
   "/rooms/:roomId/stories",
   async (req: AuthRequest, res, next) => {
     try {
-      const { roomId } = req.params;
+      const roomId = req.params.roomId as string;
 
       const participant = await prisma.roomParticipant.findUnique({
         where: { roomId_userId: { roomId, userId: req.userId! } },

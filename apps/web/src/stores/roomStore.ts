@@ -46,7 +46,7 @@ interface RoomState {
   reset: () => void;
 }
 
-export const useRoomStore = create<RoomState>((set, get) => ({
+export const useRoomStore = create<RoomState>((set) => ({
   rooms: [],
   currentRoom: null,
   participants: [],

@@ -14,12 +14,12 @@ export function LandingPage() {
           fast, and built for collaboration.
         </p>
         <div className="flex items-center justify-center gap-4">
-          <Button asChild size="lg">
-            <Link to="/register">Get Started</Link>
-          </Button>
-          <Button asChild variant="outline" size="lg">
-            <Link to="/login">Sign In</Link>
-          </Button>
+          <Link to="/register">
+            <Button size="lg">Get Started</Button>
+          </Link>
+          <Link to="/login">
+            <Button variant="outline" size="lg">Sign In</Button>
+          </Link>
         </div>
       </div>
 

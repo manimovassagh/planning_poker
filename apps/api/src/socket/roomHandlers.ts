@@ -38,7 +38,12 @@ export function setupRoomHandlers(
         },
       });
 
-      socket.emit(SocketEvents.ROOM_PARTICIPANTS, { participants });
+      socket.emit(SocketEvents.ROOM_PARTICIPANTS, {
+        participants: participants.map((p) => ({
+          ...p,
+          joinedAt: p.joinedAt.toISOString(),
+        })),
+      });
     } catch (err) {
       console.error("Error joining room:", err);
     }
