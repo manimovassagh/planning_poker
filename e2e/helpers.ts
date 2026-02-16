@@ -79,3 +79,13 @@ export async function castVote(page: Page, value: string) {
 export async function waitForStoryVisible(page: Page, title: string) {
   await page.getByText(title).waitFor({ timeout: 10_000 });
 }
+
+export async function endSession(page: Page) {
+  await page.getByRole("button", { name: "End Session" }).click();
+  await page.getByText("Session Ended").waitFor({ timeout: 10_000 });
+}
+
+export async function navigateToHistory(page: Page) {
+  await page.getByRole("link", { name: "History" }).click();
+  await page.waitForURL("**/history");
+}
