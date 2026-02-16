@@ -1,4 +1,4 @@
-.PHONY: up down test test-e2e db-up db-migrate dev clean
+.PHONY: up down test test-e2e db-up db-migrate dev clean docker-up docker-down docker-build docker-logs
 
 API_PORT := 3001
 WEB_PORT := 5173
@@ -42,3 +42,22 @@ test-e2e:
 # Remove build artifacts
 clean:
 	pnpm clean
+
+# ── Docker (production) ────────────────────────────────────────
+
+# Build and start all containers (postgres + api + web)
+docker-up:
+	docker compose up --build -d
+	@echo "Planning Poker is running at http://localhost:8080"
+
+# Stop all containers
+docker-down:
+	docker compose down
+
+# Build images without starting
+docker-build:
+	docker compose build
+
+# Tail logs from all containers
+docker-logs:
+	docker compose logs -f
