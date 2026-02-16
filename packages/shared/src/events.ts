@@ -6,6 +6,8 @@ export const SocketEvents = {
   ROOM_USER_LEFT: "room:user_left",
   ROOM_UPDATED: "room:updated",
   ROOM_PARTICIPANTS: "room:participants",
+  ROOM_END_SESSION: "room:end_session",
+  ROOM_SESSION_ENDED: "room:session_ended",
 
   // Story events
   STORY_ADDED: "story:added",
@@ -50,6 +52,7 @@ export interface ClientToServerEvents {
     storyId: string;
     finalEstimate: string;
   }) => void;
+  [SocketEvents.ROOM_END_SESSION]: (data: { roomId: string }) => void;
 }
 
 // Server -> Client payloads
@@ -94,6 +97,7 @@ export interface ServerToClientEvents {
     storyId: string;
     finalEstimate: string;
   }) => void;
+  [SocketEvents.ROOM_SESSION_ENDED]: (data: { roomId: string }) => void;
   [SocketEvents.PRESENCE_UPDATE]: (data: {
     onlineUsers: string[];
   }) => void;
