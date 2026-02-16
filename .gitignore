@@ -37,3 +37,8 @@ pnpm-debug.log*
 
 # Generated
 *.generated.*
+
+# Playwright
+test-results/
+playwright-report/
+blob-report/
