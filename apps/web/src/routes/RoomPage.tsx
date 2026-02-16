@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { SocketEvents, type CardScale } from "@planning-poker/shared";
 import { useAuthStore } from "@/stores/authStore";
 import { useRoomStore } from "@/stores/roomStore";
@@ -12,10 +12,11 @@ import { ParticipantsList } from "@/components/room/ParticipantsList";
 import { CardDeck } from "@/components/room/CardDeck";
 import { VoteStatusBar } from "@/components/room/VoteStatusBar";
 import { ResultsPanel } from "@/components/room/ResultsPanel";
-import { Copy, Check, Plus } from "lucide-react";
+import { Copy, Check, Plus, LogOut } from "lucide-react";
 
 export function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
+  const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const {
     currentRoom,
@@ -45,6 +46,7 @@ export function RoomPage() {
   const [copied, setCopied] = useState(false);
   const [newStoryTitle, setNewStoryTitle] = useState("");
   const [finalEstimate, setFinalEstimate] = useState("");
+  const [sessionEnded, setSessionEnded] = useState(false);
 
   const isFacilitator = currentRoom?.ownerId === user?.id;
   const isVoting = currentStory?.status === "voting";
@@ -150,6 +152,10 @@ export function RoomPage() {
       resetVoting();
     });
 
+    socket.on(SocketEvents.ROOM_SESSION_ENDED, () => {
+      setSessionEnded(true);
+    });
+
     return () => {
       socket.emit(SocketEvents.ROOM_LEAVE, { roomId });
       socket.off(SocketEvents.ROOM_PARTICIPANTS);
@@ -163,6 +169,7 @@ export function RoomPage() {
       socket.off(SocketEvents.VOTE_REVEALED);
       socket.off(SocketEvents.STORY_REVOTING);
       socket.off(SocketEvents.STORY_FINALIZED);
+      socket.off(SocketEvents.ROOM_SESSION_ENDED);
       disconnectSocket();
       reset();
     };
@@ -233,6 +240,29 @@ export function RoomPage() {
     setFinalEstimate("");
   };
 
+  const handleEndSession = () => {
+    const socket = getSocket();
+    if (!socket || !roomId) return;
+    socket.emit(SocketEvents.ROOM_END_SESSION, { roomId });
+  };
+
+  if (sessionEnded) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <div className="rounded-full bg-primary/10 p-4">
+          <Check className="h-8 w-8 text-primary" />
+        </div>
+        <h2 className="text-2xl font-bold">Session Ended</h2>
+        <p className="text-muted-foreground">
+          This planning session has been completed.
+        </p>
+        <Button onClick={() => navigate("/dashboard")}>
+          Back to Dashboard
+        </Button>
+      </div>
+    );
+  }
+
   if (isLoading || !currentRoom) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -261,6 +291,16 @@ export function RoomPage() {
             )}
           </button>
         </div>
+        {isFacilitator && (
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={handleEndSession}
+          >
+            <LogOut className="mr-2 h-4 w-4" />
+            End Session
+          </Button>
+        )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
