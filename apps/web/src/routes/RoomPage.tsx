@@ -12,7 +12,7 @@ import { ParticipantsList } from "@/components/room/ParticipantsList";
 import { CardDeck } from "@/components/room/CardDeck";
 import { VoteStatusBar } from "@/components/room/VoteStatusBar";
 import { ResultsPanel } from "@/components/room/ResultsPanel";
-import { Copy, Check, Plus, LogOut } from "lucide-react";
+import { Copy, Check, Plus, LogOut, Pencil } from "lucide-react";
 
 export function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
@@ -47,6 +47,8 @@ export function RoomPage() {
   const [newStoryTitle, setNewStoryTitle] = useState("");
   const [finalEstimate, setFinalEstimate] = useState("");
   const [sessionEnded, setSessionEnded] = useState(false);
+  const [editingStoryId, setEditingStoryId] = useState<string | null>(null);
+  const [editEstimateValue, setEditEstimateValue] = useState("");
 
   const isFacilitator = currentRoom?.ownerId === user?.id;
   const isVoting = currentStory?.status === "voting";
@@ -141,15 +143,17 @@ export function RoomPage() {
     );
 
     socket.on(SocketEvents.STORY_FINALIZED, ({ storyId, finalEstimate }) => {
-      const story = useRoomStore
-        .getState()
-        .stories.find((s) => s.id === storyId);
+      const state = useRoomStore.getState();
+      const story = state.stories.find((s) => s.id === storyId);
       if (story) {
         updateStory({ ...story, status: "final", finalEstimate });
       }
-      setCurrentStory(null);
-      setCurrentRound(null);
-      resetVoting();
+      // Only clear voting state if this was the actively voting story
+      if (state.currentStory?.id === storyId) {
+        setCurrentStory(null);
+        setCurrentRound(null);
+        resetVoting();
+      }
     });
 
     socket.on(SocketEvents.ROOM_SESSION_ENDED, () => {
@@ -238,6 +242,17 @@ export function RoomPage() {
       finalEstimate,
     });
     setFinalEstimate("");
+  };
+
+  const handleEditFinalEstimate = (storyId: string, newEstimate: string) => {
+    const socket = getSocket();
+    if (!socket || !newEstimate.trim()) return;
+    socket.emit(SocketEvents.STORY_SET_FINAL, {
+      storyId,
+      finalEstimate: newEstimate.trim(),
+    });
+    setEditingStoryId(null);
+    setEditEstimateValue("");
   };
 
   const handleEndSession = () => {
@@ -347,16 +362,54 @@ export function RoomPage() {
                   }}
                 >
                   <span className="truncate">{story.title}</span>
-                  {story.finalEstimate && (
-                    <span className="ml-2 rounded bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
-                      {story.finalEstimate}
-                    </span>
-                  )}
-                  {story.status === "voting" && (
-                    <span className="ml-2 rounded bg-warning/10 px-2 py-0.5 text-xs text-warning">
-                      voting
-                    </span>
-                  )}
+                  <div className="ml-2 flex items-center gap-1 shrink-0">
+                    {story.finalEstimate && (
+                      editingStoryId === story.id ? (
+                        <form
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            handleEditFinalEstimate(story.id, editEstimateValue);
+                          }}
+                          className="flex gap-1"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Input
+                            value={editEstimateValue}
+                            onChange={(e) => setEditEstimateValue(e.target.value)}
+                            className="h-6 w-16 text-xs px-1"
+                            autoFocus
+                            onBlur={() => setEditingStoryId(null)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Escape") setEditingStoryId(null);
+                            }}
+                          />
+                        </form>
+                      ) : (
+                        <>
+                          <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
+                            {story.finalEstimate}
+                          </span>
+                          {isFacilitator && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingStoryId(story.id);
+                                setEditEstimateValue(story.finalEstimate || "");
+                              }}
+                              className="text-muted-foreground hover:text-foreground transition-colors"
+                            >
+                              <Pencil className="h-3 w-3" />
+                            </button>
+                          )}
+                        </>
+                      )
+                    )}
+                    {story.status === "voting" && (
+                      <span className="rounded bg-warning/10 px-2 py-0.5 text-xs text-warning">
+                        voting
+                      </span>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
