@@ -6,7 +6,7 @@ import {
   addStory,
   waitForParticipantCount,
   waitForStoryVisible,
-} from "./helpers";
+} from "../helpers";
 
 /*
  * End-to-end voting flow with 4 users.
@@ -165,7 +165,6 @@ test.describe.serial("Multi-user voting flow", () => {
   // ──── Test 9: Verify stats are correct ───────────────────
   test("stats show correct average, median and consensus", async () => {
     // Votes: 5, 8, 5, 3 → avg = 5.25, median = 5
-    // Average is rounded for display
     // Check average (5.25 or 5.3 depending on rounding)
     await expect(
       facilitatorPage.getByText("Average").locator("..")
