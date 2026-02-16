@@ -49,7 +49,9 @@ export async function getRoomById(roomId: string, userId: string) {
 
   if (!room) throw new AppError(404, "Room not found");
 
-  const isParticipant = room.participants.some((p) => p.userId === userId);
+  const isParticipant = room.participants.some(
+    (p: (typeof room.participants)[number]) => p.userId === userId
+  );
   if (!isParticipant) throw new AppError(403, "Not a participant of this room");
 
   return room;

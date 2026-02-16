@@ -39,10 +39,12 @@ export function setupRoomHandlers(
       });
 
       socket.emit(SocketEvents.ROOM_PARTICIPANTS, {
-        participants: participants.map((p) => ({
-          ...p,
-          joinedAt: p.joinedAt.toISOString(),
-        })),
+        participants: participants.map(
+          (p: (typeof participants)[number]) => ({
+            ...p,
+            joinedAt: p.joinedAt.toISOString(),
+          })
+        ) as unknown as import("@planning-poker/shared").RoomParticipant[],
       });
     } catch (err) {
       console.error("Error joining room:", err);

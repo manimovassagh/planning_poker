@@ -166,8 +166,6 @@ test.describe.serial("Multi-user voting flow", () => {
   test("stats show correct average, median and consensus", async () => {
     // Votes: 5, 8, 5, 3 → avg = 5.25, median = 5
     // Average is rounded for display
-    const resultsPanel = facilitatorPage.locator("text=Results").locator("..");
-
     // Check average (5.25 or 5.3 depending on rounding)
     await expect(
       facilitatorPage.getByText("Average").locator("..")
