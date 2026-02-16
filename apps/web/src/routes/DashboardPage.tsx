@@ -10,7 +10,10 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import type { Room } from "@planning-poker/shared";
 import { Plus, ArrowRight, Users, FileText } from "lucide-react";
+
+type RoomWithCount = Room & { _count?: { participants: number; stories: number } };
 
 export function DashboardPage() {
   const { rooms, fetchRooms, createRoom, joinRoom, isLoading } =
@@ -126,7 +129,7 @@ export function DashboardPage() {
           </div>
         ) : (
           <div className="grid gap-3 md:grid-cols-2">
-            {rooms.map((room: any) => (
+            {(rooms as RoomWithCount[]).map((room) => (
               <Card
                 key={room.id}
                 className="cursor-pointer hover:border-primary/50 transition-colors"

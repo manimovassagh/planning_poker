@@ -1,14 +1,17 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "@/lib/api";
+import type { Room } from "@planning-poker/shared";
 import {
   Card,
   CardContent,
 } from "@/components/ui/card";
 import { Users, FileText } from "lucide-react";
 
+type HistoryRoom = Room & { _count?: { participants: number; stories: number } };
+
 export function HistoryPage() {
-  const [rooms, setRooms] = useState<any[]>([]);
+  const [rooms, setRooms] = useState<HistoryRoom[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -31,7 +34,7 @@ export function HistoryPage() {
         </p>
       ) : (
         <div className="grid gap-3 md:grid-cols-2">
-          {rooms.map((room: any) => (
+          {rooms.map((room) => (
             <Card
               key={room.id}
               className="cursor-pointer hover:border-primary/50 transition-colors"

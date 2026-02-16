@@ -183,7 +183,7 @@ export function setupVoteHandlers(
 
       io.to(story.roomId).emit(SocketEvents.VOTE_REVEALED, {
         roundId,
-        votes: votes.map((v) => ({
+        votes: votes.map((v: (typeof votes)[number]) => ({
           id: v.id,
           roundId: v.roundId,
           storyId: v.storyId,
@@ -191,7 +191,7 @@ export function setupVoteHandlers(
           value: v.value,
           createdAt: v.createdAt.toISOString(),
           user: v.user,
-        })),
+        })) as unknown as import("@planning-poker/shared").Vote[],
         stats,
       });
     } catch (err) {
