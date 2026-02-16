@@ -23,6 +23,9 @@ RUN pnpm --filter @planning-poker/shared build
 RUN pnpm --filter @planning-poker/api exec prisma generate
 RUN pnpm --filter @planning-poker/api build
 
+# Patch shared package.json to point to dist/ for production runtime
+RUN sed -i 's|"./src/index.ts"|"./dist/index.js"|g' packages/shared/package.json
+
 # ── Stage 2: Production ────────────────────────────────────────
 FROM node:20-alpine AS runner
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
@@ -32,24 +35,27 @@ WORKDIR /app
 # Copy workspace root files
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-# Copy package manifests
-COPY packages/shared/package.json packages/shared/
+# Copy package manifests (use patched shared package.json from builder)
+COPY --from=builder /app/packages/shared/package.json packages/shared/
 COPY apps/api/package.json apps/api/
 
-# Install production deps only
-RUN pnpm install --frozen-lockfile --prod
+# Install all deps (need prisma CLI for generate + migrate)
+RUN pnpm install --frozen-lockfile
 
-# Copy built shared package
+# Copy prisma schema + migrations
+COPY --from=builder /app/apps/api/prisma/ apps/api/prisma/
+
+# Generate Prisma client with correct version from lockfile
+RUN pnpm --filter @planning-poker/api exec prisma generate
+
+# Copy built shared package (dist/)
 COPY --from=builder /app/packages/shared/dist/ packages/shared/dist/
 
-# Copy built API + prisma client + migrations
+# Copy built API
 COPY --from=builder /app/apps/api/dist/ apps/api/dist/
-COPY --from=builder /app/apps/api/prisma/ apps/api/prisma/
-COPY --from=builder /app/apps/api/node_modules/.prisma/ apps/api/node_modules/.prisma/
-COPY --from=builder /app/apps/api/node_modules/@prisma/ apps/api/node_modules/@prisma/
 
 ENV NODE_ENV=production
 EXPOSE 3001
 
 # Run migrations then start
-CMD ["sh", "-c", "cd apps/api && npx prisma migrate deploy && node dist/index.js"]
+CMD ["sh", "-c", "cd apps/api && pnpm exec prisma migrate deploy && node dist/index.js"]
