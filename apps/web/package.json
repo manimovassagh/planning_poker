@@ -8,8 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "clean": "rm -rf dist",
-    "test:e2e": "playwright test"
+    "clean": "rm -rf dist"
   },
   "dependencies": {
     "@planning-poker/shared": "workspace:*",
@@ -26,7 +25,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
-    "@playwright/test": "^1.58.2",
     "@tailwindcss/vite": "^4.0.0",
     "@types/node": "^24.10.1",
     "@types/react": "^19.2.7",

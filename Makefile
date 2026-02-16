@@ -35,9 +35,9 @@ dev:
 test:
 	pnpm test
 
-# Run Playwright E2E tests
+# Run Playwright E2E tests (requires API + Web running)
 test-e2e:
-	cd apps/web && npx playwright test
+	cd e2e && npx playwright test
 
 # Remove build artifacts
 clean:

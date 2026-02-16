@@ -1,7 +1,7 @@
 import { defineConfig } from "@playwright/test";
 
 export default defineConfig({
-  testDir: "./e2e",
+  testDir: "./tests",
   fullyParallel: false,
   workers: 1,
   timeout: 60_000,
@@ -17,6 +17,20 @@ export default defineConfig({
     {
       name: "chromium",
       use: { browserName: "chromium" },
+    },
+  ],
+  webServer: [
+    {
+      command: "pnpm --filter @planning-poker/api dev",
+      port: 3001,
+      reuseExistingServer: true,
+      cwd: "..",
+    },
+    {
+      command: "pnpm --filter @planning-poker/web dev",
+      port: 5173,
+      reuseExistingServer: true,
+      cwd: "..",
     },
   ],
 });

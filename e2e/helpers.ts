@@ -51,7 +51,6 @@ export async function createRoom(page: Page, roomName: string): Promise<string> 
 export async function joinRoomByCode(page: Page, code: string) {
   await page.goto("/dashboard");
   await page.getByPlaceholder("Enter room code").fill(code);
-  // Submit by pressing Enter since the join button is an icon
   await page.getByPlaceholder("Enter room code").press("Enter");
   await page.waitForURL("**/room/**");
 }
@@ -74,7 +73,6 @@ export async function selectStory(page: Page, title: string) {
 }
 
 export async function castVote(page: Page, value: string) {
-  // Cards are buttons with the vote value
   await page.getByRole("button", { name: value, exact: true }).click();
 }
 
