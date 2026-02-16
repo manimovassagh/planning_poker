@@ -27,20 +27,7 @@ export function RoomPage() {
     myVote,
     votes,
     voteStats,
-    fetchRoom,
-    setParticipants,
-    addParticipant,
-    removeParticipant,
-    addStory,
-    updateStory,
-    removeStory,
-    setCurrentStory,
-    setCurrentRound,
-    setVotedUser,
     setMyVote,
-    setVoteResults,
-    resetVoting,
-    reset,
     isLoading,
   } = useRoomStore();
 
@@ -57,7 +44,8 @@ export function RoomPage() {
 
   useEffect(() => {
     if (!roomId) return;
-    fetchRoom(roomId);
+    const store = useRoomStore.getState();
+    store.fetchRoom(roomId);
 
     const token = localStorage.getItem("accessToken");
     if (!token) return;
@@ -67,10 +55,10 @@ export function RoomPage() {
 
     // Room events
     socket.on(SocketEvents.ROOM_PARTICIPANTS, ({ participants }) => {
-      setParticipants(participants);
+      useRoomStore.getState().setParticipants(participants);
     });
     socket.on(SocketEvents.ROOM_USER_JOINED, ({ user: joinedUser, role }) => {
-      addParticipant({
+      useRoomStore.getState().addParticipant({
         id: "",
         roomId: roomId!,
         userId: joinedUser.id,
@@ -80,80 +68,82 @@ export function RoomPage() {
       });
     });
     socket.on(SocketEvents.ROOM_USER_LEFT, ({ userId }) => {
-      removeParticipant(userId);
+      useRoomStore.getState().removeParticipant(userId);
     });
 
     // Story events
-    socket.on(SocketEvents.STORY_ADDED, ({ story }) => addStory(story));
-    socket.on(SocketEvents.STORY_UPDATED, ({ story }) => updateStory(story));
+    socket.on(SocketEvents.STORY_ADDED, ({ story }) =>
+      useRoomStore.getState().addStory(story)
+    );
+    socket.on(SocketEvents.STORY_UPDATED, ({ story }) =>
+      useRoomStore.getState().updateStory(story)
+    );
     socket.on(SocketEvents.STORY_DELETED, ({ storyId }) =>
-      removeStory(storyId)
+      useRoomStore.getState().removeStory(storyId)
     );
 
     // Voting events
     socket.on(
       SocketEvents.STORY_VOTING_STARTED,
       ({ storyId, roundId, roundNum }) => {
-        const story = useRoomStore
-          .getState()
-          .stories.find((s) => s.id === storyId);
+        const s = useRoomStore.getState();
+        const story = s.stories.find((st) => st.id === storyId);
         if (story) {
-          setCurrentStory({ ...story, status: "voting" });
+          s.setCurrentStory({ ...story, status: "voting" });
         }
-        setCurrentRound({
+        s.setCurrentRound({
           id: roundId,
           storyId,
           roundNum,
           startedAt: new Date().toISOString(),
           revealedAt: null,
         });
-        resetVoting();
+        s.resetVoting();
       }
     );
 
     socket.on(SocketEvents.VOTE_SUBMITTED, ({ userId }) => {
-      setVotedUser(userId);
+      useRoomStore.getState().setVotedUser(userId);
     });
 
     socket.on(SocketEvents.VOTE_REVEALED, ({ votes, stats }) => {
-      setVoteResults(votes, stats);
-      const story = useRoomStore.getState().currentStory;
+      const s = useRoomStore.getState();
+      s.setVoteResults(votes, stats);
+      const story = s.currentStory;
       if (story) {
-        setCurrentStory({ ...story, status: "revealed" });
+        s.setCurrentStory({ ...story, status: "revealed" });
       }
     });
 
     socket.on(
       SocketEvents.STORY_REVOTING,
       ({ storyId, roundId, roundNum }) => {
-        const story = useRoomStore
-          .getState()
-          .stories.find((s) => s.id === storyId);
+        const s = useRoomStore.getState();
+        const story = s.stories.find((st) => st.id === storyId);
         if (story) {
-          setCurrentStory({ ...story, status: "voting" });
+          s.setCurrentStory({ ...story, status: "voting" });
         }
-        setCurrentRound({
+        s.setCurrentRound({
           id: roundId,
           storyId,
           roundNum,
           startedAt: new Date().toISOString(),
           revealedAt: null,
         });
-        resetVoting();
+        s.resetVoting();
       }
     );
 
     socket.on(SocketEvents.STORY_FINALIZED, ({ storyId, finalEstimate }) => {
-      const state = useRoomStore.getState();
-      const story = state.stories.find((s) => s.id === storyId);
+      const s = useRoomStore.getState();
+      const story = s.stories.find((st) => st.id === storyId);
       if (story) {
-        updateStory({ ...story, status: "final", finalEstimate });
+        s.updateStory({ ...story, status: "final", finalEstimate });
       }
-      // Only clear voting state if this was the actively voting story
-      if (state.currentStory?.id === storyId) {
-        setCurrentStory(null);
-        setCurrentRound(null);
-        resetVoting();
+      if (s.currentStory?.id === storyId) {
+        s.setCurrentStory(null);
+        s.setCurrentRound(null);
+        s.resetVoting();
       }
     });
 
@@ -176,7 +166,7 @@ export function RoomPage() {
       socket.off(SocketEvents.STORY_FINALIZED);
       socket.off(SocketEvents.ROOM_SESSION_ENDED);
       disconnectSocket();
-      reset();
+      useRoomStore.getState().reset();
     };
   }, [roomId]);
 
