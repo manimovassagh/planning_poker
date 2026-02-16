@@ -6,7 +6,7 @@ test.describe("Authentication", () => {
     const user = generateUser();
     await registerUser(page, user);
     await expect(page).toHaveURL(/dashboard/);
-    await expect(page.getByText("Dashboard")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Dashboard" })).toBeVisible();
   });
 
   test("login with valid credentials → redirected to dashboard", async ({ page }) => {
@@ -75,8 +75,8 @@ test.describe("Authentication", () => {
     // Should be on dashboard
     await expect(page).toHaveURL(/dashboard/);
 
-    // Click logout (it's in the nav)
-    await page.getByRole("button", { name: /logout|sign out/i }).click();
+    // Click the logout icon button (ghost button with LogOut icon)
+    await page.locator("button svg.lucide-log-out").locator("..").click();
 
     // Should redirect to login
     await expect(page).toHaveURL(/login/, { timeout: 5_000 });

@@ -128,13 +128,13 @@ test.describe.serial("Session Lifecycle (4 users)", () => {
     await facilitatorPage.getByText(roomName).click();
     await facilitatorPage.waitForURL("**/history/**");
 
-    // Stats cards visible
-    await expect(facilitatorPage.getByText("Participants")).toBeVisible({
+    // Stats cards visible (use exact match to avoid heading collision)
+    await expect(facilitatorPage.getByText("Participants", { exact: true })).toBeVisible({
       timeout: 10_000,
     });
-    await expect(facilitatorPage.getByText("Stories")).toBeVisible();
-    await expect(facilitatorPage.getByText("Estimated")).toBeVisible();
-    await expect(facilitatorPage.getByText("Rounds")).toBeVisible();
+    await expect(facilitatorPage.getByRole("heading", { name: "Stories" })).toBeVisible();
+    await expect(facilitatorPage.getByText("Estimated", { exact: true })).toBeVisible();
+    await expect(facilitatorPage.getByText("Rounds", { exact: true })).toBeVisible();
 
     // Participant count should show 4
     await expect(
