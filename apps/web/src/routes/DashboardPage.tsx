@@ -9,6 +9,7 @@ import {
   CardTitle,
   CardContent,
 } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Plus, ArrowRight, Users, FileText } from "lucide-react";
 
 export function DashboardPage() {
@@ -114,9 +115,15 @@ export function DashboardPage() {
         {isLoading ? (
           <p className="text-muted-foreground">Loading...</p>
         ) : rooms.length === 0 ? (
-          <p className="text-muted-foreground">
-            No rooms yet. Create one to get started.
-          </p>
+          <div className="flex flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-12 text-center">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-3">
+              <Users className="h-6 w-6 text-primary" />
+            </div>
+            <h3 className="font-medium">No rooms yet</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Create a room to start your first planning session.
+            </p>
+          </div>
         ) : (
           <div className="grid gap-3 md:grid-cols-2">
             {rooms.map((room: any) => (
@@ -139,15 +146,9 @@ export function DashboardPage() {
                       </span>
                     </div>
                   </div>
-                  <span
-                    className={`text-xs font-medium px-2 py-1 rounded-full ${
-                      room.status === "active"
-                        ? "bg-success/10 text-success"
-                        : "bg-muted text-muted-foreground"
-                    }`}
-                  >
+                  <Badge variant={room.status === "active" ? "success" : "secondary"}>
                     {room.status}
-                  </span>
+                  </Badge>
                 </CardContent>
               </Card>
             ))}

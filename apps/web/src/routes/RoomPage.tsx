@@ -12,7 +12,8 @@ import { ParticipantsList } from "@/components/room/ParticipantsList";
 import { CardDeck } from "@/components/room/CardDeck";
 import { VoteStatusBar } from "@/components/room/VoteStatusBar";
 import { ResultsPanel } from "@/components/room/ResultsPanel";
-import { Copy, Check, Plus, LogOut, Pencil } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Copy, Check, Plus, LogOut, Pencil, FileText } from "lucide-react";
 
 export function RoomPage() {
   const { roomId } = useParams<{ roomId: string }>();
@@ -289,33 +290,41 @@ export function RoomPage() {
   return (
     <div className="mx-auto max-w-7xl p-4">
       {/* Room Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">{currentRoom.name}</h1>
-          <button
-            onClick={handleCopyCode}
-            className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-          >
-            <span className="font-mono tracking-widest">
-              {currentRoom.code}
-            </span>
-            {copied ? (
-              <Check className="h-3.5 w-3.5 text-success" />
-            ) : (
-              <Copy className="h-3.5 w-3.5" />
-            )}
-          </button>
+      <div className="mb-6 rounded-lg border border-border bg-card p-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold">{currentRoom.name}</h1>
+            <div className="mt-1 flex items-center gap-3">
+              <button
+                onClick={handleCopyCode}
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <span className="font-mono tracking-widest">
+                  {currentRoom.code}
+                </span>
+                {copied ? (
+                  <Check className="h-3.5 w-3.5 text-success" />
+                ) : (
+                  <Copy className="h-3.5 w-3.5" />
+                )}
+              </button>
+              <Badge variant="outline">{currentRoom.cardScale}</Badge>
+              <Badge variant="success">
+                {useRoomStore.getState().participants.length} online
+              </Badge>
+            </div>
+          </div>
+          {isFacilitator && (
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleEndSession}
+            >
+              <LogOut className="mr-2 h-4 w-4" />
+              End Session
+            </Button>
+          )}
         </div>
-        {isFacilitator && (
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={handleEndSession}
-          >
-            <LogOut className="mr-2 h-4 w-4" />
-            End Session
-          </Button>
-        )}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
@@ -405,9 +414,13 @@ export function RoomPage() {
                       )
                     )}
                     {story.status === "voting" && (
-                      <span className="rounded bg-warning/10 px-2 py-0.5 text-xs text-warning">
-                        voting
-                      </span>
+                      <Badge variant="warning">voting</Badge>
+                    )}
+                    {story.status === "revealed" && (
+                      <Badge variant="secondary">revealed</Badge>
+                    )}
+                    {story.status === "pending" && !story.finalEstimate && (
+                      <Badge variant="outline">pending</Badge>
                     )}
                   </div>
                 </div>
@@ -488,16 +501,21 @@ export function RoomPage() {
             </>
           ) : (
             <div className="flex items-center justify-center rounded-lg border-2 border-dashed border-border p-16">
-              <div className="text-center">
-                <h3 className="text-lg font-medium text-muted-foreground">
+              <div className="text-center space-y-3">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+                  <FileText className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-lg font-medium">
                   {stories.length === 0
-                    ? "Add stories to begin"
-                    : "Select a story to start voting"}
+                    ? "No stories yet"
+                    : "Ready to estimate"}
                 </h3>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground max-w-xs mx-auto">
                   {isFacilitator
-                    ? "Click on a story to start voting"
-                    : "Waiting for the facilitator to start voting"}
+                    ? stories.length === 0
+                      ? "Add your first story using the form on the left to get started."
+                      : "Click on a pending story in the sidebar to begin voting."
+                    : "Waiting for the facilitator to start voting on a story."}
                 </p>
               </div>
             </div>
