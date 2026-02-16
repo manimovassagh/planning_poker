@@ -14,6 +14,7 @@ import { RegisterPage } from "@/routes/RegisterPage";
 import { DashboardPage } from "@/routes/DashboardPage";
 import { RoomPage } from "@/routes/RoomPage";
 import { HistoryPage } from "@/routes/HistoryPage";
+import { HistoryDetailPage } from "@/routes/HistoryDetailPage";
 
 function ProtectedRoute() {
   const { isAuthenticated, isLoading } = useAuthStore();
@@ -53,6 +54,7 @@ function App() {
             <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/room/:roomId" element={<RoomPage />} />
             <Route path="/history" element={<HistoryPage />} />
+            <Route path="/history/:roomId" element={<HistoryDetailPage />} />
           </Route>
         </Routes>
       </div>
