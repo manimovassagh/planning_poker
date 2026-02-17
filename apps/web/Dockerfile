@@ -22,6 +22,13 @@ COPY apps/web/ apps/web/
 
 # Build shared first, then web
 RUN pnpm --filter @planning-poker/shared build
+
+# Accept API URL as build arg (baked into Vite build)
+ARG VITE_API_URL=""
+ARG VITE_WS_URL=""
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_WS_URL=$VITE_WS_URL
+
 RUN pnpm --filter @planning-poker/web build
 
 # ── Stage 2: Serve with nginx ──────────────────────────────────
