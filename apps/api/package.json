@@ -11,7 +11,9 @@
     "db:migrate": "prisma migrate dev",
     "db:push": "prisma db push",
     "db:generate": "prisma generate",
-    "db:studio": "prisma studio"
+    "db:studio": "prisma studio",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "prisma": {
     "schema": "prisma/schema.prisma"
@@ -35,6 +37,7 @@
     "@types/node": "^22.0.0",
     "prisma": "^6.3.0",
     "tsx": "^4.19.0",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
   }
 }
