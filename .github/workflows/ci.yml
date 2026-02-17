@@ -5,15 +5,19 @@ on:
     branches: [main]
   pull_request:
 
-jobs:
-  ci:
-    runs-on: ubuntu-latest
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
+jobs:
+  # ──────────────────────────────────────────────
+  # Stage 1: Install, generate, and build
+  # ──────────────────────────────────────────────
+  build:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -25,15 +29,86 @@ jobs:
       - name: Generate Prisma client
         run: pnpm --filter @planning-poker/api exec prisma generate
 
-      - name: Lint
-        run: pnpm lint
-
-      - name: Build
+      - name: Build all packages
         run: pnpm build
 
+      - uses: actions/cache/save@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+            apps/*/dist
+            packages/*/dist
+            apps/api/node_modules/.prisma
+          key: build-${{ github.sha }}
+
+  # ──────────────────────────────────────────────
+  # Stage 2a: Backend lint + unit tests
+  # ──────────────────────────────────────────────
+  backend:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+            apps/*/dist
+            packages/*/dist
+            apps/api/node_modules/.prisma
+          key: build-${{ github.sha }}
+
+      - name: Lint
+        run: pnpm --filter @planning-poker/api lint
+
+      - name: Unit tests
+        run: pnpm --filter @planning-poker/api test
+
+  # ──────────────────────────────────────────────
+  # Stage 2b: Frontend lint + unit tests
+  # ──────────────────────────────────────────────
+  frontend:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+            apps/*/dist
+            packages/*/dist
+            apps/api/node_modules/.prisma
+          key: build-${{ github.sha }}
+
+      - name: Lint
+        run: pnpm --filter @planning-poker/web lint
+
+      - name: Unit tests
+        run: pnpm --filter @planning-poker/web test
+
+  # ──────────────────────────────────────────────
+  # Stage 3: E2E tests (Playwright + Postgres)
+  # ──────────────────────────────────────────────
   e2e:
     runs-on: ubuntu-latest
-    needs: ci
+    needs: [backend, frontend]
 
     services:
       postgres:
@@ -58,25 +133,24 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: pnpm
 
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Generate Prisma client
-        run: pnpm --filter @planning-poker/api exec prisma generate
+      - uses: actions/cache/restore@v4
+        with:
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+            apps/*/dist
+            packages/*/dist
+            apps/api/node_modules/.prisma
+          key: build-${{ github.sha }}
 
       - name: Run database migrations
         run: pnpm --filter @planning-poker/api exec prisma migrate deploy
-
-      - name: Build all packages
-        run: pnpm build
 
       - name: Install Playwright browsers
         run: pnpm --filter @planning-poker/e2e exec playwright install --with-deps chromium
