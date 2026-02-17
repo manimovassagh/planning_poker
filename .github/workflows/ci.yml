@@ -1,4 +1,4 @@
-name: CI
+name: CI / CD
 
 on:
   push:
@@ -11,9 +11,9 @@ concurrency:
 
 jobs:
   # ──────────────────────────────────────────────
-  # Stage 1: Install, generate, and build
+  # Stage 1: Install dependencies + build shared
   # ──────────────────────────────────────────────
-  build:
+  install:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,8 +29,8 @@ jobs:
       - name: Generate Prisma client
         run: pnpm --filter @planning-poker/api exec prisma generate
 
-      - name: Build all packages
-        run: pnpm build
+      - name: Build shared package
+        run: pnpm --filter @planning-poker/shared build
 
       - uses: actions/cache/save@v4
         with:
@@ -38,18 +38,17 @@ jobs:
             node_modules
             apps/*/node_modules
             packages/*/node_modules
-            apps/*/dist
-            packages/*/dist
             e2e/node_modules
             apps/api/node_modules/.prisma
-          key: build-${{ github.sha }}
+            packages/*/dist
+          key: workspace-${{ github.sha }}
 
   # ──────────────────────────────────────────────
-  # Stage 2a: Backend lint + unit tests
+  # Stage 2a: Backend — build, lint, test
   # ──────────────────────────────────────────────
   backend:
     runs-on: ubuntu-latest
-    needs: build
+    needs: install
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -63,11 +62,13 @@ jobs:
             node_modules
             apps/*/node_modules
             packages/*/node_modules
-            apps/*/dist
-            packages/*/dist
             e2e/node_modules
             apps/api/node_modules/.prisma
-          key: build-${{ github.sha }}
+            packages/*/dist
+          key: workspace-${{ github.sha }}
+
+      - name: Build
+        run: pnpm --filter @planning-poker/api build
 
       - name: Lint
         run: pnpm --filter @planning-poker/api lint
@@ -76,11 +77,11 @@ jobs:
         run: pnpm --filter @planning-poker/api test
 
   # ──────────────────────────────────────────────
-  # Stage 2b: Frontend lint + unit tests
+  # Stage 2b: Frontend — build, lint, test
   # ──────────────────────────────────────────────
   frontend:
     runs-on: ubuntu-latest
-    needs: build
+    needs: install
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -94,11 +95,13 @@ jobs:
             node_modules
             apps/*/node_modules
             packages/*/node_modules
-            apps/*/dist
-            packages/*/dist
             e2e/node_modules
             apps/api/node_modules/.prisma
-          key: build-${{ github.sha }}
+            packages/*/dist
+          key: workspace-${{ github.sha }}
+
+      - name: Build
+        run: pnpm --filter @planning-poker/web build
 
       - name: Lint
         run: pnpm --filter @planning-poker/web lint
@@ -147,11 +150,13 @@ jobs:
             node_modules
             apps/*/node_modules
             packages/*/node_modules
-            apps/*/dist
-            packages/*/dist
             e2e/node_modules
             apps/api/node_modules/.prisma
-          key: build-${{ github.sha }}
+            packages/*/dist
+          key: workspace-${{ github.sha }}
+
+      - name: Build all packages
+        run: pnpm build
 
       - name: Run database migrations
         run: pnpm --filter @planning-poker/api exec prisma migrate deploy
@@ -169,3 +174,60 @@ jobs:
           name: playwright-report
           path: e2e/test-results/
           retention-days: 7
+
+  # ──────────────────────────────────────────────
+  # Stage 4a: Deploy frontend to Vercel
+  # ──────────────────────────────────────────────
+  deploy-web:
+    runs-on: ubuntu-latest
+    needs: e2e
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Vercel CLI
+        run: npm install -g vercel@latest
+
+      - name: Pull Vercel environment
+        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Build with Vercel
+        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Deploy to Vercel
+        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        env:
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+  # ──────────────────────────────────────────────
+  # Stage 4b: Deploy backend to Railway
+  # ──────────────────────────────────────────────
+  deploy-api:
+    runs-on: ubuntu-latest
+    needs: e2e
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: curl -fsSL https://railway.app/install.sh | sh
+
+      - name: Deploy to Railway
+        run: railway up --service ${{ secrets.RAILWAY_SERVICE_ID }} --ci
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
