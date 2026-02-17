@@ -11,9 +11,10 @@ concurrency:
 
 jobs:
   # ──────────────────────────────────────────────
-  # Stage 1: Install dependencies + build shared
+  # Stage 1: Setup workspace
   # ──────────────────────────────────────────────
-  install:
+  setup:
+    name: 📦 Setup Workspace
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -44,11 +45,12 @@ jobs:
           key: workspace-${{ github.sha }}
 
   # ──────────────────────────────────────────────
-  # Stage 2a: Backend — build, lint, test
+  # Stage 2a: Backend — build, lint, unit tests
   # ──────────────────────────────────────────────
   backend:
+    name: 🔧 Backend · Build & Unit Tests
     runs-on: ubuntu-latest
-    needs: install
+    needs: setup
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -77,11 +79,12 @@ jobs:
         run: pnpm --filter @planning-poker/api test
 
   # ──────────────────────────────────────────────
-  # Stage 2b: Frontend — build, lint, test
+  # Stage 2b: Frontend — build, lint, unit tests
   # ──────────────────────────────────────────────
   frontend:
+    name: 🎨 Frontend · Build & Unit Tests
     runs-on: ubuntu-latest
-    needs: install
+    needs: setup
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -110,9 +113,10 @@ jobs:
         run: pnpm --filter @planning-poker/web test
 
   # ──────────────────────────────────────────────
-  # Stage 3: E2E tests (Playwright + Postgres)
+  # Stage 3: Integration tests (Playwright + Postgres)
   # ──────────────────────────────────────────────
-  e2e:
+  integration:
+    name: 🧪 Integration · E2E Tests
     runs-on: ubuntu-latest
     needs: [backend, frontend]
 
@@ -179,8 +183,9 @@ jobs:
   # Stage 4a: Deploy frontend to Vercel
   # ──────────────────────────────────────────────
   deploy-web:
+    name: 🚀 Deploy · Frontend (Vercel)
     runs-on: ubuntu-latest
-    needs: e2e
+    needs: integration
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment: production
 
@@ -207,7 +212,7 @@ jobs:
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
       - name: Deploy to Vercel
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+        run: vercel deploy --prebuilt --prod --force --token=${{ secrets.VERCEL_TOKEN }}
         env:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
@@ -216,8 +221,9 @@ jobs:
   # Stage 4b: Deploy backend to Railway
   # ──────────────────────────────────────────────
   deploy-api:
+    name: 🚀 Deploy · Backend (Railway)
     runs-on: ubuntu-latest
-    needs: e2e
+    needs: integration
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     environment: production
 
@@ -228,6 +234,12 @@ jobs:
         run: curl -fsSL https://railway.app/install.sh | sh
 
       - name: Deploy to Railway
-        run: railway up --service ${{ secrets.RAILWAY_SERVICE_ID }} --ci
+        run: |
+          if [ -z "$RAILWAY_SERVICE_ID" ]; then
+            echo "⚠️ RAILWAY_SERVICE_ID not set — skipping Railway deploy"
+            exit 0
+          fi
+          railway up --service "$RAILWAY_SERVICE_ID" --ci
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+          RAILWAY_SERVICE_ID: ${{ secrets.RAILWAY_SERVICE_ID }}
