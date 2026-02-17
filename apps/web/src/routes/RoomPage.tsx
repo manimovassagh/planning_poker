@@ -462,9 +462,15 @@ export function RoomPage() {
                 </>
               )}
 
-              {isRevealed && votes.length > 0 && voteStats && (
+              {isRevealed && (
                 <>
-                  <ResultsPanel votes={votes} stats={voteStats} />
+                  {votes.length > 0 && voteStats ? (
+                    <ResultsPanel votes={votes} stats={voteStats} />
+                  ) : (
+                    <p className="text-center text-muted-foreground py-4">
+                      Loading results...
+                    </p>
+                  )}
                   {isFacilitator && (
                     <div className="flex items-center justify-center gap-3">
                       <Button variant="outline" onClick={handleRevote}>

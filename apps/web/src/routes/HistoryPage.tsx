@@ -17,7 +17,15 @@ export function HistoryPage() {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const fetchHistory = () => {
+  useEffect(() => {
+    api
+      .get("/analytics/user/history")
+      .then(({ data }) => setRooms(data.rooms))
+      .catch(() => setError("Failed to load session history."))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const handleRetry = () => {
     setLoading(true);
     setError(null);
     api
@@ -26,10 +34,6 @@ export function HistoryPage() {
       .catch(() => setError("Failed to load session history."))
       .finally(() => setLoading(false));
   };
-
-  useEffect(() => {
-    fetchHistory();
-  }, []);
 
   return (
     <div className="mx-auto max-w-4xl p-4 space-y-6">
@@ -41,7 +45,7 @@ export function HistoryPage() {
         <div className="flex flex-col items-center gap-3 py-8 text-muted-foreground">
           <AlertCircle className="h-8 w-8 text-destructive" />
           <p>{error}</p>
-          <Button variant="outline" onClick={fetchHistory}>
+          <Button variant="outline" onClick={handleRetry}>
             Retry
           </Button>
         </div>
