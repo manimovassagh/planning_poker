@@ -5,7 +5,8 @@
   "scripts": {
     "test": "playwright test",
     "test:headed": "playwright test --headed",
-    "test:debug": "playwright test --debug"
+    "test:debug": "playwright test --debug",
+    "test:prod": "BASE_URL=https://planningpoker-two.vercel.app playwright test tests/production-smoke.spec.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2"
