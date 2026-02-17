@@ -7,7 +7,8 @@ interface ResultsPanelProps {
 }
 
 export function ResultsPanel({ votes, stats }: ResultsPanelProps) {
-  const maxCount = Math.max(...Object.values(stats.distribution));
+  const counts = Object.values(stats.distribution);
+  const maxCount = counts.length > 0 ? Math.max(...counts) : 1;
 
   return (
     <div className="space-y-6 rounded-lg border border-border bg-card p-6">

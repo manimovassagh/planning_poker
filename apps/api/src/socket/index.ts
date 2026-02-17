@@ -46,14 +46,9 @@ export function setupSocket(httpServer: HttpServer) {
 
   io.on("connection", (socket) => {
     const appSocket = socket as AppSocket;
-    console.log(`User connected: ${appSocket.userId}`);
 
     setupRoomHandlers(io, appSocket);
     setupVoteHandlers(io, appSocket);
-
-    socket.on("disconnect", () => {
-      console.log(`User disconnected: ${appSocket.userId}`);
-    });
   });
 
   return io;

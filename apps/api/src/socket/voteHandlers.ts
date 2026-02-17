@@ -104,8 +104,8 @@ export function setupVoteHandlers(
         roundId: round.id,
         roundNum: round.roundNum,
       });
-    } catch (err) {
-      console.error("Error starting vote:", err);
+    } catch {
+      /* silently handled */
     }
   });
 
@@ -148,8 +148,8 @@ export function setupVoteHandlers(
       if (voteCount >= totalEligible) {
         io.to(round.story.roomId).emit(SocketEvents.VOTE_ALL_IN);
       }
-    } catch (err) {
-      console.error("Error submitting vote:", err);
+    } catch {
+      /* silently handled */
     }
   });
 
@@ -194,8 +194,8 @@ export function setupVoteHandlers(
         })) as unknown as import("@planning-poker/shared").Vote[],
         stats,
       });
-    } catch (err) {
-      console.error("Error revealing votes:", err);
+    } catch {
+      /* silently handled */
     }
   });
 
@@ -225,8 +225,8 @@ export function setupVoteHandlers(
         roundId: round.id,
         roundNum: round.roundNum,
       });
-    } catch (err) {
-      console.error("Error starting revote:", err);
+    } catch {
+      /* silently handled */
     }
   });
 
@@ -249,8 +249,8 @@ export function setupVoteHandlers(
           storyId,
           finalEstimate,
         });
-      } catch (err) {
-        console.error("Error setting final estimate:", err);
+      } catch {
+        /* silently handled */
       }
     }
   );

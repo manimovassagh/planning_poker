@@ -46,8 +46,8 @@ export function setupRoomHandlers(
           })
         ) as unknown as import("@planning-poker/shared").RoomParticipant[],
       });
-    } catch (err) {
-      console.error("Error joining room:", err);
+    } catch {
+      /* silently handled */
     }
   });
 
@@ -70,8 +70,8 @@ export function setupRoomHandlers(
       });
 
       io.to(roomId).emit(SocketEvents.ROOM_SESSION_ENDED, { roomId });
-    } catch (err) {
-      console.error("Error ending session:", err);
+    } catch {
+      /* silently handled */
     }
   });
 }
