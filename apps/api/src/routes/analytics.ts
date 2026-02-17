@@ -29,9 +29,9 @@ analyticsRouter.get("/rooms/:roomId", async (req: AuthRequest, res, next) => {
     });
     if (!room) throw new AppError(404, "Room not found");
 
-    const storiesWithFinal = room.stories.filter((s: any) => s.finalEstimate);
+    const storiesWithFinal = room.stories.filter((s) => s.finalEstimate);
     const totalRounds = room.stories.reduce(
-      (sum: number, s: any) => sum + s._count.rounds,
+      (sum, s) => sum + s._count.rounds,
       0
     );
 
