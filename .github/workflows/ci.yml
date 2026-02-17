@@ -40,6 +40,7 @@ jobs:
             packages/*/node_modules
             apps/*/dist
             packages/*/dist
+            e2e/node_modules
             apps/api/node_modules/.prisma
           key: build-${{ github.sha }}
 
@@ -64,6 +65,7 @@ jobs:
             packages/*/node_modules
             apps/*/dist
             packages/*/dist
+            e2e/node_modules
             apps/api/node_modules/.prisma
           key: build-${{ github.sha }}
 
@@ -94,6 +96,7 @@ jobs:
             packages/*/node_modules
             apps/*/dist
             packages/*/dist
+            e2e/node_modules
             apps/api/node_modules/.prisma
           key: build-${{ github.sha }}
 
@@ -146,6 +149,7 @@ jobs:
             packages/*/node_modules
             apps/*/dist
             packages/*/dist
+            e2e/node_modules
             apps/api/node_modules/.prisma
           key: build-${{ github.sha }}
 
