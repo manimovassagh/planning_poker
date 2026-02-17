@@ -2,7 +2,7 @@
 
 > Real-time estimation ceremonies with collaborative UX, Socket.IO events, and a typed API/SPA monorepo powered by Turborepo.
 
-![pnpm](https://img.shields.io/badge/pnpm-9.15+-f69220?logo=pnpm&logoColor=white) ![turbo](https://img.shields.io/badge/turborepo-2.8-000?logo=turbo&logoColor=white) ![tests](https://img.shields.io/badge/tests-81_passing-2ea44f) ![license](https://img.shields.io/badge/license-MIT-2ea44f)
+![pnpm](https://img.shields.io/badge/pnpm-9.15+-f69220?logo=pnpm&logoColor=white) ![turbo](https://img.shields.io/badge/turborepo-2.8-000?logo=turbo&logoColor=white) ![tests](https://img.shields.io/badge/tests-81_passing-2ea44f) ![license](https://img.shields.io/badge/license-AGPL--3.0-blue)
 
 **Live:** [planning-poker.up.railway.app](https://planning-poker.up.railway.app)
 
@@ -125,3 +125,11 @@ Both frontend and backend deploy to **Railway** automatically after CI passes on
 1. Create a feature branch
 2. Run `pnpm lint` and `pnpm test` before pushing
 3. Submit a PR -- CI will run all 81 tests automatically
+
+## License
+
+Copyright 2025 **Mani Movassagh Ghazani**
+
+This project is licensed under the **GNU Affero General Public License v3.0** -- see the [LICENSE](LICENSE) file for details.
+
+Free for individuals and open-source projects. Organizations running this as a service must open-source their modifications or obtain a commercial license.

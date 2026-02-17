@@ -1,6 +1,8 @@
 {
   "name": "planning-poker",
   "private": true,
+  "author": "Mani Movassagh Ghazani",
+  "license": "AGPL-3.0-only",
   "scripts": {
     "dev": "turbo dev",
     "build": "turbo build",
