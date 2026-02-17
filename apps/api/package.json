@@ -13,6 +13,9 @@
     "db:generate": "prisma generate",
     "db:studio": "prisma studio"
   },
+  "prisma": {
+    "schema": "prisma/schema.prisma"
+  },
   "dependencies": {
     "@planning-poker/shared": "workspace:*",
     "@prisma/client": "^6.3.0",
