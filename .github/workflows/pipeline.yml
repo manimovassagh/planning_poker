@@ -34,7 +34,7 @@ jobs:
       - name: Build shared package
         run: pnpm --filter @planning-poker/shared build
 
-      - uses: actions/cache/save@v4
+      - uses: actions/cache/save@v5
         with:
           path: |
             node_modules
@@ -59,7 +59,7 @@ jobs:
         with:
           node-version: 20
 
-      - uses: actions/cache/restore@v4
+      - uses: actions/cache/restore@v5
         with:
           path: |
             node_modules
@@ -93,7 +93,7 @@ jobs:
         with:
           node-version: 20
 
-      - uses: actions/cache/restore@v4
+      - uses: actions/cache/restore@v5
         with:
           path: |
             node_modules
@@ -149,7 +149,7 @@ jobs:
         with:
           node-version: 20
 
-      - uses: actions/cache/restore@v4
+      - uses: actions/cache/restore@v5
         with:
           path: |
             node_modules
