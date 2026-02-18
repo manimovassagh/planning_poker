@@ -1,5 +1,5 @@
 # ── Stage 1: Build ──────────────────────────────────────────────
-FROM node:20-alpine AS builder
+FROM node:25-alpine AS builder
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 
 WORKDIR /app
@@ -27,7 +27,7 @@ RUN pnpm --filter @planning-poker/api build
 RUN sed -i 's|"./src/index.ts"|"./dist/index.js"|g' packages/shared/package.json
 
 # ── Stage 2: Production ────────────────────────────────────────
-FROM node:20-alpine AS runner
+FROM node:25-alpine AS runner
 RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
 
 WORKDIR /app
