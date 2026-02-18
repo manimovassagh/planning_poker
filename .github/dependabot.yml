@@ -1,0 +1,71 @@
+version: 2
+
+updates:
+  # ── npm: Root workspace ────────────────────────
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  # ── npm: API ───────────────────────────────────
+  - package-ecosystem: npm
+    directory: /apps/api
+    schedule:
+      interval: weekly
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  # ── npm: Web ───────────────────────────────────
+  - package-ecosystem: npm
+    directory: /apps/web
+    schedule:
+      interval: weekly
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  # ── npm: Shared ────────────────────────────────
+  - package-ecosystem: npm
+    directory: /packages/shared
+    schedule:
+      interval: weekly
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  # ── npm: E2E ───────────────────────────────────
+  - package-ecosystem: npm
+    directory: /e2e
+    schedule:
+      interval: weekly
+    groups:
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  # ── Docker: API ────────────────────────────────
+  - package-ecosystem: docker
+    directory: /apps/api
+    schedule:
+      interval: weekly
+
+  # ── Docker: Web ────────────────────────────────
+  - package-ecosystem: docker
+    directory: /apps/web
+    schedule:
+      interval: weekly
+
+  # ── GitHub Actions ─────────────────────────────
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+
+  # ── Terraform providers ────────────────────────
+  - package-ecosystem: terraform
+    directory: /deploy
+    schedule:
+      interval: monthly
