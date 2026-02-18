@@ -1,0 +1,35 @@
+# ── Required ─────────────────────────────────────────────────
+aws_region = "eu-central-1"
+
+# ── Instance ─────────────────────────────────────────────────
+# instance_type   = "t3.small"     # t3.small is enough for ~10 rooms
+# ebs_volume_size = 20             # GB for Postgres data
+
+# ── Domain + HTTPS (optional) ───────────────────────────────
+# Uncomment both lines below to enable HTTPS via Let's Encrypt.
+# DNS must point to the Elastic IP before running terraform apply.
+#
+# domain_name = "poker.example.com"
+# admin_email = "admin@example.com"
+
+# ── SSH Access ───────────────────────────────────────────────
+# Option 1: Use an existing AWS key pair
+# key_pair_name = "my-existing-key"
+#
+# Option 2: Provide your public key
+# ssh_public_key = "ssh-ed25519 AAAA..."
+#
+# Option 3: Leave both empty — Terraform generates a key pair
+#            and outputs the private key (terraform output -raw private_key)
+
+# Restrict SSH to your IP (recommended)
+# allowed_ssh_cidrs = ["203.0.113.10/32"]
+
+# ── Secrets (auto-generated if empty) ────────────────────────
+# jwt_secret         = ""
+# jwt_refresh_secret = ""
+# postgres_password  = ""
+
+# ── Docker Images ────────────────────────────────────────────
+# api_image = "ghcr.io/manimovassagh/planning-poker-api:latest"
+# web_image = "ghcr.io/manimovassagh/planning-poker-web:self-hosted"

@@ -43,3 +43,11 @@ test-results/
 playwright-report/
 blob-report/
 .vercel
+
+# Terraform
+deploy/.terraform/
+deploy/*.tfstate
+deploy/*.tfstate.*
+deploy/*.tfvars
+!deploy/*.tfvars.example
+deploy/.terraform.lock.hcl

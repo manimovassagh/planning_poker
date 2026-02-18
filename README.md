@@ -115,6 +115,19 @@ Both frontend and backend deploy to **Railway** automatically after CI passes on
 | Backend | api-production-31a2.up.railway.app | Node.js + Prisma (Docker) |
 | Database | Railway Postgres | PostgreSQL 16 |
 
+## Self-Hosted Deployment
+
+Deploy to your own AWS account with Terraform:
+
+```bash
+cd deploy
+cp terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars
+terraform init && terraform apply
+```
+
+Everything runs on a single EC2 instance (~$17/month). See [deploy/README.md](deploy/README.md) for full docs.
+
 ## Architecture
 - **API (`apps/api`)**: Express with CORS, rate limiting, JWT auth, and Zod validation. Socket.IO handles real-time room/vote events.
 - **Web (`apps/web`)**: React 19 + Vite + Tailwind. Zustand stores manage auth, rooms, and vote state.
