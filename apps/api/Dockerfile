@@ -1,6 +1,6 @@
 # ── Stage 1: Build ──────────────────────────────────────────────
 FROM node:25-alpine AS builder
-RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+RUN npm install -g pnpm@9.15.0
 
 WORKDIR /app
 
@@ -28,7 +28,7 @@ RUN sed -i 's|"./src/index.ts"|"./dist/index.js"|g' packages/shared/package.json
 
 # ── Stage 2: Production ────────────────────────────────────────
 FROM node:25-alpine AS runner
-RUN corepack enable && corepack prepare pnpm@9.15.0 --activate
+RUN npm install -g pnpm@9.15.0
 
 WORKDIR /app
 
